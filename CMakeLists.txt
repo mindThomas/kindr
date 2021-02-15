@@ -75,28 +75,28 @@ endif()
 include_directories(include)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-# Don't build tests if not specified.
-if(NOT BUILD_TEST)
-  message(STATUS "Setting build-tests to false as not specified.")
-  set(BUILD_TEST false CACHE BOOL "Choose whether to build tests." FORCE)
-  set_property(CACHE BUILD_TEST PROPERTY STRINGS
-    "True" "False")
-endif()
+# # Don't build tests if not specified.
+# if(NOT BUILD_TEST)
+#   message(STATUS "Setting build-tests to false as not specified.")
+#   set(BUILD_TEST false CACHE BOOL "Choose whether to build tests." FORCE)
+#   set_property(CACHE BUILD_TEST PROPERTY STRINGS
+#     "True" "False")
+# endif()
 
-if(BUILD_TEST AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
-	message(STATUS "Building GTests!")
-	option(BUILD_GTEST "build gtest" ON)
-	add_subdirectory(gtest gtest)
-	enable_testing()
-endif()
+# if(BUILD_TEST AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
+# 	message(STATUS "Building GTests!")
+# 	option(BUILD_GTEST "build gtest" ON)
+# 	add_subdirectory(gtest gtest)
+# 	enable_testing()
+# endif()
 
-install(DIRECTORY include/kindr DESTINATION include)
+# install(DIRECTORY include/kindr DESTINATION include)
 
-# Add unit tests
-add_subdirectory(test)
+# # Add unit tests
+# add_subdirectory(test)
 
-# Add Doxygen documentation
-add_subdirectory(doc/doxygen)
+# # Add Doxygen documentation
+# add_subdirectory(doc/doxygen)
 
 # Install catkin package.xml
 #install(FILES package.xml DESTINATION share/kindr)
@@ -126,34 +126,37 @@ get_property(kindr_include_dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY I
 configure_file(kindrConfig.cmake.in
   "${PROJECT_BINARY_DIR}/kindrConfig.cmake" @ONLY)
 
+add_library(kindr INTERFACE)
+#target_include_directories(kindr INTERFACE ${kindr_include_dirs})
+target_include_directories(kindr INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR})
+
 # 2- installation build #
 
 # Change the include location for the case of an install location
-set(kindr_include_dirs ${CMAKE_INSTALL_PREFIX}/include ${EIGEN3_INCLUDE_DIR})
+# set(kindr_include_dirs ${CMAKE_INSTALL_PREFIX}/include ${EIGEN3_INCLUDE_DIR})
+
+# # We put the generated file for installation in a different repository (i.e., ./CMakeFiles/)
+# configure_file(kindrConfig.cmake.in
+#   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/kindrConfig.cmake" @ONLY)
+
+# install(FILES
+#   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/kindrConfig.cmake"
+#   DESTINATION share/kindr/cmake COMPONENT dev)
+
+# install(FILES
+#   package.xml
+#   DESTINATION share/kindr COMPONENT dev)
 
 
-# We put the generated file for installation in a different repository (i.e., ./CMakeFiles/)
-configure_file(kindrConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/kindrConfig.cmake" @ONLY)
+# #=============================================
+# # Add uninstall target
+# #=============================================
+# configure_file(
+#     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#     IMMEDIATE @ONLY)
 
-install(FILES
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/kindrConfig.cmake"
-  DESTINATION share/kindr/cmake COMPONENT dev)
-
-install(FILES
-  package.xml
-  DESTINATION share/kindr COMPONENT dev)
-
-
-#=============================================
-# Add uninstall target
-#=============================================
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-
-if (NOT TARGET uninstall)
-  add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()
+# if (NOT TARGET uninstall)
+#   add_custom_target(uninstall
+#     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+# endif()
